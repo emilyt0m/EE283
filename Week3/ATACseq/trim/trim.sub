@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#SBATCH --job-name=trim_array
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --array=1-24
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load trimmomatic/0.39
+
+file="/pub/etom2/EE283/EE283/Week2/ATACseq/raw/ATACseq_prefixes.txt"
+prefix=`head -n $SLURM_ARRAY_TASK_ID $file | tail -n 1`
+
+FPATH='/pub/etom2/EE283/EE283/Week2/ATACseq/raw';
+OPATH='/pub/etom2/EE283/EE283/Week3/ATACseq/trim';
+ADPATH='/opt/apps/trimmomatic/0.39/adapters/TruSeq3-PE-2.fa';
+
+java -jar /opt/apps/trimmomatic/0.39/trimmomatic-0.39.jar PE -threads 8 -phred33 \
+	-baseout ${OPATH}/${prefix}-trimmed.fq.gz \
+	${FPATH}/${prefix}_R1.fq.gz \
+	${FPATH}/${prefix}_R2.fq.gz \
+	ILLUMINACLIP:${ADPATH}:2:30:10 \
+	SLIDINGWINDOW:4:15 \
+	MINLEN:20 \
+
+module unload trimmomatic/0.39
+

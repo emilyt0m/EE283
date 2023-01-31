@@ -1,0 +1,28 @@
+#!/bin/bash
+#SBATCH --job-name=align_array
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --array=1-24
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load picard-tools/2.27.1
+module load samtools/1.10
+module load bwa/0.7.17
+
+file="/pub/etom2/EE283/EE283/Week3/ATACseq/trim/ATACseq_trimmed_prefixes.txt"
+prefix=`head -n $SLURM_ARRAY_TASK_ID $file | tail -n 1`
+ref="/pub/etom2/EE283/EE283/Week3/DNAseq/align/ref/drosophila"
+
+FPATH='/pub/etom2/EE283/EE283/Week3/ATACseq/trim'
+
+bwa mem -M $ref ${FPATH}/${prefix}_1P.fq.gz ${FPATH}/${prefix}_2P.fq.gz | samtools view -bS - > ${prefix}.bam
+samtools sort ${prefix}.bam -o ${prefix}.sort.bam
+
+module unload picard-tools/2.27.1
+module unload samtools/1.10
+module unload bwa/0.7.17
+

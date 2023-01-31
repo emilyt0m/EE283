@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#SBATCH --job-name=trim_array
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --array=1-376
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load trimmomatic/0.39
+
+file="/pub/etom2/EE283/EE283/Week2/RNAseq/raw/RNAseq_prefixes.txt"
+prefix=`head -n $SLURM_ARRAY_TASK_ID $file | tail -n 1`
+
+FPATH='/pub/etom2/EE283/EE283/Week2/RNAseq/raw';
+OPATH='/pub/etom2/EE283/EE283/Week3/RNAseq/trim';
+ADPATH='/opt/apps/trimmomatic/0.39/adapters/TruSeq3-PE-2.fa';
+
+java -jar /opt/apps/trimmomatic/0.39/trimmomatic-0.39.jar PE -threads 8 -phred33 \
+	-baseout ${OPATH}/${prefix}-trimmed.fastq.gz \
+	${FPATH}/${prefix}_R1_001.fastq.gz \
+	${FPATH}/${prefix}_R2_001.fastq.gz \
+	ILLUMINACLIP:${ADPATH}:2:30:10 \
+	SLIDINGWINDOW:4:15 \
+	MINLEN:20 \
+
+module unload trimmomatic/0.39
+

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#SBATCH --job-name=fastqc
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load fastqc/0.11.9
+
+fastqc -t 8 /pub/etom2/EE283/EE283/Week2/RNAseq/raw/*.fastq.gz -o /pub/etom2/EE283/EE283/Week3/RNAseq/fastqc
+
+mkdir /pub/etom2/EE283/EE283/Week3/RNAseq/fastqc/html
+
+mv /pub/etom2/EE283/EE283/Week3/RNAseq/fastqc/*.html /pub/etom2/EE283/EE283/Week3/RNAseq/fastqc/html
+
+module unload fastqc/0.11.9

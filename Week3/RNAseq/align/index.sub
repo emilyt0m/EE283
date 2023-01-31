@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#SBATCH --job-name=index
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load hisat2/2.2.1
+
+ref="dmel-all-chromosome-r6.49.fasta"
+gtf="dmel-all-r6.49.gtf"
+hisat2_extract_splice_sites.py $gtf > dm6.ss
+hisat2_extract_exons.py $gtf > dm6.exon
+hisat2-build -p 8 --exon dm6.exon --ss dm6.ss $ref dm6_trans
+
+module unload hisat2/2.2.1
+

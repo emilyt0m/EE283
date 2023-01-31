@@ -1,0 +1,28 @@
+#!/bin/bash
+#SBATCH --job-name=align_array
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --array=1-376
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load hisat2/2.2.1
+module load samtools/1.10
+
+ref="dm6_trans"
+file="/pub/etom2/EE283/EE283/Week3/RNAseq/trim/RNAseq_trimmed_prefixes.txt"
+prefix=`head -n $SLURM_ARRAY_TASK_ID $file | tail -n 1`
+
+FPATH='/pub/etom2/EE283/EE283/Week3/RNAseq/trim'
+
+hisat2 -p 2 -x $ref -1 $FPATH/${prefix}_1P.fastq.gz -2 $FPATH/${prefix}_2P.fastq.gz |\
+samtools view -bS -> ${prefix}.bam
+samtools sort ${prefix}.bam -o ${prefix}.sort.bam
+samtools index ${prefix}.sort.bam
+rm ${prefix}.bam
+
+module unload hisat2/2.2.1
+module unload samtools/1.10

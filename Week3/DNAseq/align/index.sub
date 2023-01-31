@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH --job-name=index
+#SBATCH -A etom2
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load picard-tools/2.27.1
+module load samtools/1.10
+module load bwa/0.7.17  
+
+ref="dmel-all-chromosome-r6.49.fasta"
+bwa index -p ref/drosophila $ref
+samtools faidx $ref
+java -jar /opt/apps/picard-tools/2.27.1/picard.jar CreateSequenceDictionary R=$ref O=ref/dmel-all-chromosome-r6.49.dict
+
+module unload picard-tools/2.27.1
+module unload samtools/1.10
+module unload bwa/0.7.17
+
+
