@@ -1,0 +1,12 @@
+ADL06_1-trimmed
+ADL06_2-trimmed
+ADL06_3-trimmed
+ADL09_1-trimmed
+ADL09_2-trimmed
+ADL09_3-trimmed
+ADL10_1-trimmed
+ADL10_2-trimmed
+ADL10_3-trimmed
+ADL14_1-trimmed
+ADL14_2-trimmed
+ADL14_3-trimmed
