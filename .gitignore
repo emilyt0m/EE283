@@ -1,5 +1,7 @@
 ## C files
 
+*.fastqc.zip
+
 # Prerequisites
 *.d
 
