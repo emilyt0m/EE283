@@ -1,0 +1,23 @@
+#!/bin/bash
+  
+#SBATCH --job-name=problem3
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --array=1-6
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load deeptools/3.5.0
+
+file="/pub/etom2/EE283/EE283/Week3/DNAseq/align/sorted/prefixes.txt"
+prefix=`head -n $SLURM_ARRAY_TASK_ID $file | tail -n 1`
+
+FPATH='/pub/etom2/EE283/EE283/Week4/Problem1'
+OPATH='/pub/etom2/EE283/EE283/Week4/Problem3'
+
+bamCoverage -b ${FPATH}/${prefix}_region.sort.bam --normalizeUsing RPKM -of bigwig -o ${OPATH}/${prefix}_region.bw
+
+module unload deeptools/3.5.0

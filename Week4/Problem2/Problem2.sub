@@ -1,0 +1,29 @@
+#!/bin/bash
+  
+#SBATCH --job-name=problem2
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --array=1-6
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=sluirm-%x.%j.out
+
+module load samtools/1.10
+module load bedtools2/2.29.2
+
+file="/pub/etom2/EE283/EE283/Week3/DNAseq/align/sorted/prefixes.txt"
+prefix=`head -n $SLURM_ARRAY_TASK_ID $file | tail -n 1`
+
+FPATH='/pub/etom2/EE283/EE283/Week3/DNAseq/align/sorted'
+OPATH='/pub/etom2/EE283/EE283/Week4/Problem2'
+
+samtools view -b -f 4 -F 8 ${FPATH}/${prefix}.sort.bam X:1880000-2000000 -o ${OPATH}/${prefix}_unmapped.sort.bam
+bamToFastq -i ${OPATH}/${prefix}_unmapped.sort.bam -fq ${OPATH}/${prefix}_unmapped.sort.1.fq -fq2 ${OPATH}/${prefix}_unmapped.sort.2.fq
+
+gzip ${OPATH}/${prefix}_unmapped.sort.1.fq
+gzip ${OPATH}/${prefix}_unmapped.sort.2.fq
+
+module unload samtools/1.10
+module unload bedtools2/2.29.2
