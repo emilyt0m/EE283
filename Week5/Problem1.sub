@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#SBATCH --job-name=DNAseq_merge
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --array=1-4
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=sluirm-%x.%j.out
+
+module load java/1.8.0
+module load gatk/4.2.6.1 
+module load picard-tools/2.27.1  
+module load samtools/1.15.1
+
+file="/pub/etom2/EE283/EE283/Week3/DNAseq/align/sorted/genotypes.txt"
+prefix=`head -n $SLURM_ARRAY_TASK_ID $file | tail -n 1`
+ref="/pub/etom2/EE283/EE283/Week3/DNAseq/align/dmel-all-chromosome-r6.49.fasta"
+
+FPATH='/pub/etom2/EE283/EE283/Week3/DNAseq/align/sorted'
+OPATH='/pub/etom2/EE283/EE283/Week5'
+
+samtools merge -o ${OPATH}/${prefix}.bam ${FPATH}/${prefix}_1-trimmed.sort.bam ${FPATH}/${prefix}_2-trimmed.sort.bam ${FPATH}/${prefix}_3-trimmed.sort.bam
+samtools sort ${OPATH}/${prefix}.bam -o ${OPATH}/${prefix}.sort.bam
+java -jar /opt/apps/picard-tools/2.27.1/picard.jar AddOrReplaceReadGroups \
+I=${OPATH}/${prefix}.sort.bam O=${OPATH}/${prefix}.RG.bam SORT_ORDER=coordinate \
+RGPL=illumina RGPU=D109LACXX RGLB=Lib1 RGID=${prefix} RGSM=${prefix} \
+VALIDATION_STRINGENCY=LENIENT
+java -jar /opt/apps/picard-tools/2.27.1/picard.jar MarkDuplicates REMOVE_DUPLICATES=true \
+I=${OPATH}/${prefix}.RG.bam O=${OPATH}/${prefix}.dedup.bam M=${OPATH}/${prefix}_marked_dup_metrics.txt
+samtools index ${OPATH}/${prefix}.dedup.bam
+java -jar /opt/apps/gatk/4.2.6.1/gatk-package-4.2.6.1-local.jar HaplotypeCaller -R $ref -I ${OPATH}/${prefix}.dedup.bam \
+--minimum-mapping-quality 30 -ERC GVCF -O ${OPATH}/${prefix}.g.vcf.gz
+ 
+module unload java/1.8.0
+module unload gatk/4.2.6.1
+module unload picard-tools/2.27.1
+module unload samtools/1.15.1
+
