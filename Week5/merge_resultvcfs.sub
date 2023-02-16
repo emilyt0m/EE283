@@ -6,7 +6,6 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --array=1-4
 #SBATCH --error=slurm-%x.%j.err
 #SBATCH --output=slurm-%x.%j.out
 

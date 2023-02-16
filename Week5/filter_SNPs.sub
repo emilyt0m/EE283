@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#SBATCH --job-name=filter_SNPs
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --array=1-7
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load  bcftools/1.15.1
+mychr=`head -n $SLURM_ARRAY_TASK_ID chrome.names.txt | tail -n 1`
+
+#bcftools filter -i 'FS<40.0 && SOR<3 && MQ>40.0 && MQRankSum>-5.0 && MQRankSum<5 && QD>2.0 && ReadPosRankSum>-4.0 && INFO/DP<16000' -O z -o ${mychr}.filteroutput1.vcf.gz result.${mychr}.vcf.gz
+
+#bcftools filter -S . -e 'FMT/DP<3 | FMT/GQ<20' -O z -o ${mychr}.filteroutput2.vcf.gz ${mychr}.filteroutput1.vcf.gz
+
+bcftools filter -e 'AC==0 || AC==AN' --SnpGap 10 ${mychr}.filteroutput2.vcf.gz |\
+bcftools view -m2 -M2 -v snps -O z -o ${mychr}.filteroutput3.vcf.gz
+
+module unload bcftools/1.15.1
