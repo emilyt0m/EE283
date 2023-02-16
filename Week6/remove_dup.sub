@@ -1,0 +1,25 @@
+#!/bin/bash
+  
+#SBATCH --job-name=ATACseq_removedups
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --array=1-24
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load samtools/1.15.1
+
+FPATH='/pub/etom2/EE283/EE283/Week3/ATACseq/align/sorted'
+file="/pub/etom2/EE283/EE283/Week2/ATACseq/raw/ATACseq_prefixes.txt"
+
+prefix=`head -n $SLURM_ARRAY_TASK_ID  $file | tail -n 1`
+
+#samtools view -q 30 -b ${FPATH}/${prefix}-trimmed.sort.bam X 2L 2R 3L 3R Y 4 > ${prefix}.Q30.bam
+#samtools sort ${prefix}.Q30.bam > ${prefix}.Q30.sorted.bam
+#java -jar /opt/apps/picard-tools/2.27.1/picard.jar MarkDuplicates I=${prefix}.Q30.sorted.bam O=${prefix}.dedup.bam M=${prefix}.marked_dup_metrics.txt REMOVE_DUPLICATES=true
+samtools index ${prefix}.dedup.bam
+
+module unload samtools/1.15.1
