@@ -1,0 +1,19 @@
+#!/bin/bash
+  
+#SBATCH --job-name=featurecounts
+#SBATCH -A ecoevo283
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load subread/2.0.3
+
+gtf="/pub/etom2/EE283/EE283/Week3/RNAseq/align/dmel-all-r6.49.gtf"
+myfile=`cat shortRNAseq2.names.txt | tr "\n" " "`
+
+featureCounts -p -T 8 -t exon -g gene_id -Q 30 -F GTF -a $gtf -o fly_counts.txt $myfile
+
+module unload subread/2.0.3
