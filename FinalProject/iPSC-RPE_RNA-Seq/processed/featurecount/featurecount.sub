@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH --job-name=featurecount
+#SBATCH -A etom2
+#SBATCH -p standard
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --error=slurm-%x.%j.err
+#SBATCH --output=slurm-%x.%j.out
+
+module load subread/2.0.1
+
+RPATH='/pub/etom2/iPSC-RPE_RNA-Seq/processed/featurecount/UCSC_hg38/hg38.refGene.gtf'
+IPATH='/pub/etom2/iPSC-RPE_RNA-Seq/processed/align'
+OPATH='/pub/etom2/iPSC-RPE_RNA-Seq/processed/featurecount/counts'
+
+featureCounts -s 2 -p -t exon -g gene_id -T 4 \
+-a ${RPATH} \
+-o ${OPATH}/nR238-L1-G2-P22-TCAACGAG-GGTTGACG_counts.txt ${IPATH}/nR238-L1-G2-P22-TCAACGAG-GGTTGACG_sorted.bam
+
+module unload subread/2.0.1
+
